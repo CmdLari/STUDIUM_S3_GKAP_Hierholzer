@@ -1,13 +1,8 @@
 import org.graphstream.graph.*;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.time.format.DateTimeFormatter;
-import java.time.LocalDateTime;
 
 public class Hierholzer {
 
@@ -26,7 +21,7 @@ public class Hierholzer {
     }
 
     public boolean checkGraph(Graph graph) {
-        if (graph.nodes().toList().isEmpty() || graph.edges().toList().isEmpty()) {
+        if (originalNodes.isEmpty() || originalEdges.isEmpty()) {
             System.err.println("Please chose a valid graph: Undirected, not empty.");
             return false;
         }
@@ -57,7 +52,7 @@ public class Hierholzer {
      * starts from v0 node and makes an Eulerian trail
      * removes used edges from graph
      */
-    public void startHierholzer() throws FileNotFoundException {
+    public void startHierholzer() {
         if (checkGraph(graph)) {
             Node v0 = choseStartingNode();
             makeLoop(v0);
@@ -65,7 +60,6 @@ public class Hierholzer {
             System.out.print("\n###### The Hierholzer Algorithmm is complete ######");
             System.out.print("\n_____________________________________________________");
             System.out.print("\nSaved the following:");
-            saveGraph("test Team", "Test");
         }
     }
 
@@ -79,16 +73,16 @@ public class Hierholzer {
         Node activeNode = node;
         List<Node> usedNodes = new ArrayList<>();
         usedNodes.add(activeNode);
-        while (!activeNode.edges().toList().isEmpty() && activeNode.edges().toList().get(0).getOpposite(activeNode) != node) {
+        while (activeNode.edges().findAny().isPresent() && activeNode.edges().toList().get(0).getOpposite(activeNode) != node) {
             activeNode = addEdges(activeNode, usedNodes);
         }
-        if (!activeNode.edges().toList().isEmpty() && activeNode.edges().toList().get(0).getOpposite(activeNode) == node) {
+        if (activeNode.edges().findAny().isPresent() && activeNode.edges().toList().get(0).getOpposite(activeNode) == node) {
             addEdges(activeNode, usedNodes);
         }
 
         System.out.printf("\nEulerian Sub Loop: %s", usedNodes);
         for (int i = 0; i < usedNodes.size() - 1; i++) {
-            if (graph.getNode(usedNodes.get(i).getId()).edges().toList().size() != 0) {
+            if (graph.getNode(usedNodes.get(i).getId()).edges().findAny().isPresent()) {
                 activeNode = usedNodes.get(i);
                 makeLoop(activeNode);
             }
@@ -115,30 +109,4 @@ public class Hierholzer {
         return activeNode;
     }
 
-    /**
-     * Writes base data and results to a csv file and the terminal
-     * @param team - team using the algorithm
-     * @param graphType - Multi or Simple
-     * @throws FileNotFoundException - File not found
-     */
-    public void saveGraph(String team, String graphType) throws FileNotFoundException {
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmm");
-        LocalDateTime localDateTime = LocalDateTime.now();
-        String file_name = String.format("%Hierholzer%sEdges_%sNodes",dateTimeFormatter.format(localDateTime) ,originalEdges.size(), originalNodes.size());
-        File csvOutputFile = new File(file_name);
-        PrintWriter printWriter = new PrintWriter(csvOutputFile);
-        System.out.printf("\n%s",team);
-        printWriter.printf("\n%s",team);
-        System.out.printf("\nGraph Type: %s", graphType);
-        printWriter.printf("\nGraph Type: %s", graphType);
-        System.out.printf("\nNumber of Edges: %s", originalEdges.size());
-        printWriter.printf("\nNumber of Edges: %s", originalEdges.size());
-        System.out.print("\nThe Hierholzer Algorithm Result:");
-        printWriter.print("\nThe Hierholzer Algorithm Result:");
-        System.out.printf("\n%s",edgesSorted.toString());
-        printWriter.printf("\n%s",edgesSorted.toString());
-        System.out.printf("\nOperating System: %s | Available Processors: %s | available Memory: %s bytes", System.getProperty("os.name"), Runtime.getRuntime().availableProcessors(),   Runtime.getRuntime().freeMemory());
-        printWriter.printf("\nOperating System: %s | Available Processors: %s | available Memory: %s bytes", System.getProperty("os.name"), Runtime.getRuntime().availableProcessors(),   Runtime.getRuntime().freeMemory());
-        //todo: Efficiency Check
-    }
 }

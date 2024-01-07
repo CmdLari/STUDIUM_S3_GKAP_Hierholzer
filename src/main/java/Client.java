@@ -1,12 +1,28 @@
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class Client {
-    public static void main(String[] args) throws FileNotFoundException {
-        Hierholzer hierholzer = new Hierholzer(testGraph());
-        hierholzer.startHierholzer();
+    public static void main(String[] args) throws IOException {
+        Graph graph = testGraph();
+        Hierholzer hierholzer = new Hierholzer(graph);
+        String pc = System.getProperty("os.name");
+        String team = "Test";
+        String time = new SimpleDateFormat("yyMMdd_HHmm").format(Calendar.getInstance().getTime());
+        String filename = String.format("%s_%s_%sEdgesGraph", time, team, graph.edges().count());
+        FileWriter.saveGraph(team, "TestGraph", Long.toString(graph.edges().count()), pc, "IntelliJ", filename);
+
+        for (int i = 0; i <= 10 ; i++) {
+            long startTime = System.nanoTime();
+            hierholzer.startHierholzer();
+            long endTime = System.nanoTime();
+            long duration = endTime - startTime;
+            String runtime = String.valueOf(duration/1000000000.);
+            FileWriter.appendGraph(String.valueOf(i), "DontKnow", runtime, filename);
+        }
     }
 
     public static Graph testGraph() {

@@ -6,7 +6,7 @@ import java.io.FileNotFoundException;
 public class Client {
     public static void main(String[] args) throws FileNotFoundException {
         Hierholzer hierholzer = new Hierholzer(testGraph());
-        hierholzer.makeLoop();
+        hierholzer.startHierholzer();
     }
 
     public static Graph testGraph() {

@@ -57,7 +57,7 @@ public class Hierholzer {
      * starts from v0 node and makes an Eulerian trail
      * removes used edges from graph
      */
-    public void makeLoop() throws FileNotFoundException {
+    public void startHierholzer() throws FileNotFoundException {
         if (checkGraph(graph)) {
             Node v0 = choseStartingNode();
             makeLoop(v0);
@@ -83,7 +83,7 @@ public class Hierholzer {
             activeNode = addEdges(activeNode, usedNodes);
         }
         if (!activeNode.edges().toList().isEmpty() && activeNode.edges().toList().get(0).getOpposite(activeNode) == node) {
-            activeNode = addEdges(activeNode, usedNodes);
+            addEdges(activeNode, usedNodes);
         }
 
         System.out.printf("\nEulerian Sub Loop: %s", usedNodes);
@@ -115,6 +115,12 @@ public class Hierholzer {
         return activeNode;
     }
 
+    /**
+     * Writes base data and results to a csv file and the terminal
+     * @param team - team using the algorithm
+     * @param graphType - Multi or Simple
+     * @throws FileNotFoundException - File not found
+     */
     public void saveGraph(String team, String graphType) throws FileNotFoundException {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMdd_HHmm");
         LocalDateTime localDateTime = LocalDateTime.now();

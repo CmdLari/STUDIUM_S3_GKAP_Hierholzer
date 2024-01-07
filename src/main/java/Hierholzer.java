@@ -89,7 +89,6 @@ public class Hierholzer {
         System.out.printf("\nEulerian Sub Loop: %s", usedNodes);
         for (int i = 0; i < usedNodes.size() - 1; i++) {
             if (graph.getNode(usedNodes.get(i).getId()).edges().toList().size() != 0) {
-                //usedNodes.get(i).edges().toList()!=null
                 activeNode = usedNodes.get(i);
                 makeLoop(activeNode);
             }

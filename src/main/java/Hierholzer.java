@@ -1,6 +1,8 @@
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.MultiGraph;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 //Algorithmus
@@ -11,52 +13,96 @@ import java.util.Random;
 
 public class Hierholzer {
 
-    public Graph testGraph() {
-        Graph toUse = new MultiGraph("test");
-        boolean isDirected = false;
-        toUse.addNode("a");
-        toUse.addNode("b");
-        toUse.addNode("c");
-        toUse.addNode("d");
-        toUse.addNode("e");
-        toUse.addEdge("1", "a", "b");
-        toUse.addEdge("2", "a", "c");
-        toUse.addEdge("3", "b", "c");
-        toUse.addEdge("4", "c", "e");
-        toUse.addEdge("5", "c", "d");
-        toUse.addEdge("6", "d", "e");
-        return toUse;
+    private final Graph graphOrigin;
+    private final Graph graphWIP;
+    private final List<Edge> edgesSorted;
+    private final Node v0;
+
+    public Hierholzer(Graph graph){
+        //origin graph
+        this.graphOrigin = graph;
+        this.graphWIP = graphOrigin;
+        this.edgesSorted = new ArrayList<>();
+        this.v0 = choseStartingNode();
+
     }
 
-    public Graph getGraph(){
-        //To-Do: Hier Graphenerzeugung nutzen | Nikita
-        return testGraph();
-    }
-
-    //i. Wähle einen beliebigen Knoten v0 des Graphen
 
     /**
      * chooses a random starting node v0
-     * @param graph - graph from which to chose
      * @return v0
      */
-    public Node choseStartingNode(Graph graph){
+    public Node choseStartingNode(){
         Random random = new Random();
-        return graph.getNode(random.nextInt(0, getGraph().nodes().toArray().length-1));
+        return graphOrigin.getNode(random.nextInt(0, graphOrigin.nodes().toArray().length-1));
     }
 
-    //i ff und konstruiere von v0 ausgehend einen
-    // Unterkreis K in G, der alle Eigenschaften
-    // eines Eulerkreises besitzt.
+    /**
+     * starts from v0 node and makes an Eulerian trail
+     * removes used edges from graph
+     */
     public void makeLoop(){
-        // TODO: 1/7/2024  
+        if (!graphWIP.edges().toList().isEmpty()){
+            makeLoop(v0);}
+        System.out.printf("\n%s", edgesSorted);
+        System.err.print("\n###### The Hierholzer Algorithmm is complete ######");
     }
-    
-    //ii. Vernachlässige nun alle Kanten dieses
-    //Unterkreises.
 
-    public void ignoreEdges(){
-        // TODO: 1/7/2024  
+    /**
+     * starts from active node and makes an Eulerian trail
+     * removes used edges from graph
+     * @param node starting node
+     */
+    public void makeLoop(Node node){
+        Node activeNode=node;
+        List<Node> usedNodes = new ArrayList<>();
+        usedNodes.add(activeNode);
+        Graph eulerianLoop = new MultiGraph("Sub Loop");
+        while (!activeNode.edges().toList().isEmpty() && activeNode.edges().toList().get(0).getOpposite(activeNode)!= node){
+            activeNode = addEdges(activeNode, usedNodes, eulerianLoop);
+        }
+        if (!activeNode.edges().toList().isEmpty() && activeNode.edges().toList().get(0).getOpposite(activeNode)== node){
+            activeNode = addEdges(activeNode, usedNodes, eulerianLoop);
+        }
+
+        System.out.printf("\nEulerian Sub Loop: %s", usedNodes);
+        for (int i = 0; i < usedNodes.size()-1; i++) {
+            if(graphWIP.getNode(usedNodes.get(i).getId()).edges().toList().size()!=0){
+                //usedNodes.get(i).edges().toList()!=null
+                activeNode=usedNodes.get(i);
+                makeLoop(activeNode);
+            }
+        }
+    }
+
+    /**
+     * adds nodes to list of used nodes, adds nodes and edges to the sub graph, removes used nodes from graph
+     * @param activeNode - node from which we start
+     * @param usedNodes - list of nodes used for the sub loop
+     * @param eulerianLoop sub graph showing the eulerian loop
+     * @return new node from which to start
+     */
+    private Node addEdges(Node activeNode, List<Node> usedNodes, Graph eulerianLoop) {
+        Node oppositeNode = activeNode.edges().toList().get(0).getOpposite(activeNode);
+        Edge chosenEdge = activeNode.edges().toList().get(0);
+        edgesSorted.add(chosenEdge);
+        String activeId = activeNode.getId();
+        String oppositeId = oppositeNode.getId();
+        if (eulerianLoop.getNode(activeId)==null){
+            eulerianLoop.addNode(activeId);}
+        if (eulerianLoop.getNode(oppositeId)==null){
+            eulerianLoop.addNode(oppositeId);}
+        eulerianLoop.addEdge((String.format("%s -%s", activeId, oppositeId)), eulerianLoop.getNode(activeId), eulerianLoop.getNode(oppositeId));
+        System.out.printf("\n\tadded Edge: %s -- %s", activeId, oppositeId);
+        graphWIP.removeEdge(chosenEdge);
+        activeNode = oppositeNode;
+        usedNodes.add(activeNode);
+        return activeNode;
+    }
+
+
+    public void isEulerian(){
+        // TODO: 1/7/2024
     }
 
     //iii. Am ersten Eckpunkt des ersten Unterkreises,

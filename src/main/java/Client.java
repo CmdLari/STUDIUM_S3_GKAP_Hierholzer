@@ -1,8 +1,10 @@
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
 
+import java.io.FileNotFoundException;
+
 public class Client {
-    public static void main(String[] args){
+    public static void main(String[] args) throws FileNotFoundException {
         Hierholzer hierholzer = new Hierholzer(testGraph());
         hierholzer.makeLoop();
     }

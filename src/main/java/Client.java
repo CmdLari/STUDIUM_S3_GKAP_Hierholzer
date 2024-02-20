@@ -36,6 +36,7 @@ public class Client {
         toUse.addNode("d");
         toUse.addNode("e");
         toUse.addEdge("1", "a", "b");
+        toUse.addEdge("1a", "a", "b");
         toUse.addEdge("2", "a", "c");
         toUse.addEdge("3", "b", "c");
         toUse.addEdge("4", "c", "e");
